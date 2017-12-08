@@ -47,12 +47,20 @@ class NewWindow(tk.Toplevel, MainWindow):
         tk.Toplevel.__init__(self)
         self.geometry('{}x{}'.format(no_r*20+400, no_c*20+20))
         self.win_counter = 0
-        #self.wind = w
         self.top = top
         self.no_bombs = no_bombs
         self.no_c = no_c
         self.no_r = no_r
+        self.flag_image = tk.PhotoImage(file="flag.gif")
+        self.mine_image = tk.PhotoImage(file="mine.gif")
+        self.current_mine_image = tk.PhotoImage(file="current_mine.gif")
+        self.incorrect_flag_image = tk.PhotoImage(file="wrong_flag.gif")
+        self.resized_flag = self.flag_image.subsample(5,5)
+        self.resized_mine = self.mine_image.subsample(15,15)
+        self.resized_current_mine = self.current_mine_image.subsample(15,15)
+        self.resized_incorrect_flag = self.incorrect_flag_image.subsample(15,15)
         self.all_buttons = []
+        self.flag_locs = []
         self.wm_title("Minesweeper")
         self.bombs_counter = self.no_bombs
         self.create_button_grid()
@@ -85,7 +93,10 @@ class NewWindow(tk.Toplevel, MainWindow):
             for col in range(self.no_c):
                 but = Create_Button(self, row,
                                     col, self.no_r,
-                                    self.no_c, self.no_bombs)
+                                    self.no_c, self.no_bombs,
+                                    self.resized_flag, self.resized_mine,
+                                    self.resized_current_mine,
+                                    self.resized_incorrect_flag)
                 self.all_buttons.append(but)
 
     def first_button_press(self, r, c, grid, bomb_locs):
@@ -103,63 +114,18 @@ class NewWindow(tk.Toplevel, MainWindow):
         buttons_to_invoke = []
         o_index = (r * self.no_r) + c
 
-        if r == 0 and c == 0:
-            buttons_to_invoke.append((r, c+1))
-            buttons_to_invoke.append((r+1, c))
-            buttons_to_invoke.append((r+1, c+1))
+        for i in range(r-1, r+2):
+            for j in range(c-1, c+2):
+                if i == r and j == c:
+                    continue
 
-        elif r == 0 and c == self.no_c - 1:
-            buttons_to_invoke.append((r, c-1))
-            buttons_to_invoke.append((r+1, c))
-            buttons_to_invoke.append((r+1, c-1))
-
-        elif r == self.no_r - 1 and c == 0:
-            buttons_to_invoke.append((r-1, c))
-            buttons_to_invoke.append((r-1, c+1))
-            buttons_to_invoke.append((r, c+1))
-
-        elif r == self.no_r - 1 and c == self.no_c - 1:
-            buttons_to_invoke.append((r-1, c-1))
-            buttons_to_invoke.append((r-1, c))
-            buttons_to_invoke.append((r, c-1))
-
-        elif r == 0:
-            buttons_to_invoke.append((r, c-1))
-            buttons_to_invoke.append((r, c+1))
-            buttons_to_invoke.append((r+1, c-1))
-            buttons_to_invoke.append((r+1, c))
-            buttons_to_invoke.append((r+1, c+1))
-
-        elif c == 0:
-            buttons_to_invoke.append((r-1, c))
-            buttons_to_invoke.append((r+1, c))
-            buttons_to_invoke.append((r-1, c+1))
-            buttons_to_invoke.append((r, c+1))
-            buttons_to_invoke.append((r+1, c+1))
-
-        elif r == self.no_r - 1:
-            buttons_to_invoke.append((r-1, c-1))
-            buttons_to_invoke.append((r-1, c))
-            buttons_to_invoke.append((r-1, c+1))
-            buttons_to_invoke.append((r, c-1))
-            buttons_to_invoke.append((r, c+1))
-
-        elif c == self.no_c - 1:
-            buttons_to_invoke.append((r-1, c))
-            buttons_to_invoke.append((r+1, c))
-            buttons_to_invoke.append((r-1, c-1))
-            buttons_to_invoke.append((r, c-1))
-            buttons_to_invoke.append((r+1, c-1))
-
-        else:
-            buttons_to_invoke.append((r-1, c-1))
-            buttons_to_invoke.append((r-1, c))
-            buttons_to_invoke.append((r-1, c+1))
-            buttons_to_invoke.append((r, c-1))
-            buttons_to_invoke.append((r, c+1))
-            buttons_to_invoke.append((r+1, c-1))
-            buttons_to_invoke.append((r+1, c))
-            buttons_to_invoke.append((r+1, c+1))
+                if 0 <= i <= self.no_r - 1:
+                    if 0 <= j <= self.no_c - 1:
+                        buttons_to_invoke.append((i, j))
+                    else:
+                        continue
+                else:
+                    break
 
         for count, (row, col) in enumerate(buttons_to_invoke):
             b = self.two_d_list[row][col]
@@ -170,7 +136,7 @@ class NewWindow(tk.Toplevel, MainWindow):
 
         if self.win_counter >= (self.no_r * self.no_c) - self.no_bombs:
             [[b.disable_button() for b in line] for line in self.two_d_list]
-            
+
             self.end_text = tk.Label(self, text="You Win!")
             self.end_text.pack()
             self.end_text.config(font=("Courier", 44))
@@ -182,7 +148,17 @@ class NewWindow(tk.Toplevel, MainWindow):
             r_val = loc[0]
             c_val = loc[1]
             b = self.two_d_list[r_val][c_val]
+            b.not_first_bomb()
             b.invoke()
+
+        for loc in self.flag_locs:
+            if loc in self.bomb_locs:
+                continue
+            else:
+                r_val = loc[0]
+                c_val = loc[1]
+                b = self.two_d_list[r_val][c_val]
+                b.wrong_flag()
 
         [[b.disable_button() for b in line] for line in self.two_d_list]
 
@@ -192,13 +168,14 @@ class NewWindow(tk.Toplevel, MainWindow):
         self.end_text.place(x=(self.no_r * 20 + 60),
                         y=self.no_c * 20 - 80)
 
-    def reduce_counter(self):
-        if self.bombs_counter != 0:
-            self.bombs_counter -= 1
+    def reduce_counter(self, loc):
+        self.flag_locs.append(loc)
+        self.bombs_counter -= 1
         self.counter_label['text'] = \
                 "Number of mines to find: {}".format(self.bombs_counter)
 
-    def increase_counter(self):
+    def increase_counter(self, loc):
+        self.flag_locs.remove(loc)
         self.bombs_counter += 1
         self.counter_label['text'] = \
                 "Number of mines to find: {}".format(self.bombs_counter)
@@ -215,6 +192,7 @@ class NewWindow(tk.Toplevel, MainWindow):
         self.end_text['text'] = " " * len(self.end_text['text'])
 
         self.win_counter = 0
+        self.flag_locs = []
         self.bombs_counter = self.no_bombs
         self.all_buttons = []
 
@@ -232,7 +210,7 @@ def create_main_window():
     root = tk.Tk()
     root.wm_title("Game Settings")
     main = MainWindow(root)
-    root.geometry('{}x{}'.format(200, 200))
+    root.geometry('{}x{}'.format(600, 600))
     main.pack(side="top", fill="both", expand=True)
     root.mainloop()
 
