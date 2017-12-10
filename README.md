@@ -13,20 +13,12 @@ If using a linux machine, use:
 
 If not using a linux machine, see [here](http://www.tkdocs.com/tutorial/install.html) for the installation process. 
 
+To install numpy use: 
+
+> pip install numpy==1.13.3
+
 ## Cloning and Set-up
-
-In order to clone the repo run one of the following: 
-> git clone git&#8203;@github.com:kinsey40/minesweeper.git
-
-> git clone ht&#8203;tp://github.com/kinsey40/minesweeper.git
-
-Within the repository is a setup.sh file. Running this file will create a python virtual environment, from which the user 
-can run the application. 
-*NOTE: This will install tkinter locallly onto your machine.*  
-
-Alternatively, the user can create their own virtual environment, manually installing numpy and tkinter. 
-The application can be run by running the main.py script.
-
+The application can be executed by running the main.py script.
 Hence, run the following in the command terminal (Assuming the python path defaults to python3):
 
 > cd minesweeper
