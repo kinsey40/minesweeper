@@ -17,6 +17,7 @@ If not using a linux machine, see [here](http://www.tkdocs.com/tutorial/install.
 
 In order to clone the repo run one of the following: 
 > git clone git@github.com:kinsey40/minesweeper.git
+
 > git clone https://github.com/kinsey40/minesweeper.git
 
 Within the repository is a setup.sh file. Running this file will create a python virtual environment, from which the user 
