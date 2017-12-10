@@ -1,0 +1,1 @@
+from .new_window_script import create_main_window
