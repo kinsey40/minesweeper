@@ -24,3 +24,11 @@ Hence, run the following in the command terminal (Assuming the python path defau
 > cd minesweeper
 
 > python main.py
+
+## Potential Addtional Features
+There are two particular features that the author has not added that the author believes could be greatly beneficial.
+Firstly, on the 'Game Settings' page, a link that opens a window with instructions of how to play minesweeper would be beneficial. 
+Secondly, in the online version of minesweeper, they include a feature whereby, pressing the mouse on any of the 'buttons' it 'sinks' that button and the surrounding buttons. 
+
+## Comments and Improvements
+The author welcomes comments and improvements. I am fairly new to programming,so welcome any feedback on the approach and any ways to improve the code. Also, feel free to clone the repository and edit the features yourself. Thanks :) 
